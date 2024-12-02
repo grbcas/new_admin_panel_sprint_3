@@ -3,7 +3,8 @@ services:
   service:
     build:
       context: .
-    command: ["sh", "-c", "until nc -zv theatre-db 5432; do sleep 60; done; ./start.sh"]
+    container_name: app
+    command: ["sh", "-c", "until nc -zv theatre-db 5432; do sleep 60; done; /app/start.sh"]
     expose:
       - "8000"
     env_file:
@@ -24,7 +25,7 @@ services:
       retries: 5
     restart: always
     volumes:
-      - ./data_dump.sql:/docker-entrypoint-initdb.d/data_dump.sql
+      - ./database_dump.sql:/docker-entrypoint-initdb.d/data_dump.sql
 
   elastick:
     image: elasticsearch:8.6.2

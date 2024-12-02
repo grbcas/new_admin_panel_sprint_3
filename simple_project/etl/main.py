@@ -13,6 +13,10 @@ state = State(storage=storage)
 
 def check_time_delta_sec():
     state_time = state.get_state('last_processed_time')
+    if not state_time:
+        logger.warning("No last processed time found; using current time as fallback.")
+        return settings.TIME_DELTA
+
     logger.info("last_processed_time '%s'", state_time)
     last_processed_time = datetime.datetime.strptime(state_time, '%Y-%m-%d %H:%M:%S.%f')
     time_delta_sec = (datetime.datetime.now() - last_processed_time).total_seconds()
@@ -27,13 +31,13 @@ def main():
     es_url = settings.ES_URL
     es = ElasticsearchLoader(es_url=es_url, index_name=es_index)
 
-    time_delta_sec = check_time_delta_sec()
-
     if es.create_index():
         current_time = datetime.datetime.now()
         unix_epoch = datetime.datetime(1970, 1, 1)
         time_delta_sec = (current_time - unix_epoch).total_seconds()
         logger.info("time_delta_sec from the unix_epoch start '%s'", time_delta_sec)
+
+    time_delta_sec = check_time_delta_sec()
 
     while True:
         chunk_size = settings.CHUNK_SIZE
