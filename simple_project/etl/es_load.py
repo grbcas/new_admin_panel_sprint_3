@@ -22,6 +22,7 @@ class ElasticsearchLoader:
         try:
             es = Elasticsearch(self.es_url)
             if not es.indices.exists(index=self.index_name):
+                logger.debug("No index '%s' create index:.", self.index_name)
                 self.create_index(es)
             else:
                 logger.info("Index '%s' already exists.", self.index_name)

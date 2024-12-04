@@ -8,7 +8,7 @@ settings = Settings()
 logger.debug("Settings loaded: %s", settings.model_dump())
 
 
-def check_time_delta_sec():
+def check_time_delta_sec() -> int:
     state_time = state.get_state('last_processed_ts')
     logger.debug("last_processed_ts '%s'", state_time)
 
