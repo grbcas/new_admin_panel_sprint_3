@@ -15,13 +15,6 @@ def check_time_delta_sec():
     index_created_ts = state.get_state('index_created_ts')
     logger.debug("index_created_ts '%s'", index_created_ts)
 
-    if not index_created_ts:
-        return (datetime.datetime.now() - datetime.datetime(1970, 1, 1, 0, 0)).total_seconds()
-
-    if index_created_ts and not state_time:
-        time_delta_sec = (datetime.datetime.now() - index_created_ts).total_seconds()
-        return time_delta_sec
-
     if state_time:
         last_processed_ts = datetime.datetime.strptime(state_time, '%Y-%m-%d %H:%M:%S.%f')
         time_delta_sec = (datetime.datetime.now() - last_processed_ts).total_seconds()
@@ -29,6 +22,13 @@ def check_time_delta_sec():
             return time_delta_sec
         else:
             return settings.TIME_DELTA
+
+    if not index_created_ts:
+        return (datetime.datetime.now() - datetime.datetime(1970, 1, 1, 0, 0)).total_seconds()
+
+    if index_created_ts and not state_time:
+        time_delta_sec = (datetime.datetime.now() - index_created_ts).total_seconds()
+        return time_delta_sec
 
 
 def main():

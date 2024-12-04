@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 import django
 from settings import logger, ROOT_DIR
 from backoff import backoff
@@ -28,7 +28,7 @@ class PostgresExtractor:
         self.model = None
 
     def fetch_data_in_chunks(self):
-        time_delta = datetime.now() - timedelta(seconds=self.time_delta_sec)
+        time_delta = datetime.now(timezone.utc) - timedelta(seconds=self.time_delta_sec)
         queryset = self.model.objects.all().filter(modified__gte=time_delta)
         # Используем iterator() для "ленивой" итерации по объектам
         for obj in queryset.iterator(chunk_size=self.chunk_size):
