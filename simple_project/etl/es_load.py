@@ -42,7 +42,7 @@ class ElasticsearchLoader:
                 index_created_ts = datetime.datetime.now()
                 logger.info("New ES %s index created_ts: %s", self.index_name, index_created_ts)
 
-                state.set_state('index_created_ts', index_created_ts)
+                state.set_state('index_created_ts', str(index_created_ts))
 
         except ConnectionError as ex:
             logger.error("Failed to create index '%s': %s", self.index_name, ex)
