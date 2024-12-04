@@ -1,1 +1,3 @@
 database_dump.sql
+.env
+/simple_project/state.json

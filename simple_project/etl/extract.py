@@ -1,17 +1,11 @@
 import os
 import sys
-from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import django
 from settings import logger, ROOT_DIR
 from backoff import backoff
 from models import FilmWorkModel, ActorDTO, DirectorDTO, WriterDTO
 
-# from django.conf import settings
-# settings.configure(DEBUG=True, ALLOWED_HOSTS=['localhost'])
-
-
-# root_project_path = Path(__file__).parent.parent
 
 sys.path.append(ROOT_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
@@ -19,18 +13,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 os.environ.get('DJANGO_SETTINGS_MODULE')
 django.setup()
 
-from django.conf import settings    # noqa: E402
-
-# Check if DEBUG is set correctly
-
 from movies.models import (     # noqa: E402
     FilmWork,
     Person,
     Genre,
     PersonFilmWork
     )
-
-logger.info("Debug mode is %s", "ON" if settings.DEBUG else "OFF")
 
 
 class PostgresExtractor:
@@ -40,7 +28,7 @@ class PostgresExtractor:
         self.model = None
 
     def fetch_data_in_chunks(self):
-        time_delta = datetime.now(timezone.utc) - timedelta(seconds=self.time_delta_sec)
+        time_delta = datetime.now() - timedelta(seconds=self.time_delta_sec)
         queryset = self.model.objects.all().filter(modified__gte=time_delta)
         # Используем iterator() для "ленивой" итерации по объектам
         for obj in queryset.iterator(chunk_size=self.chunk_size):

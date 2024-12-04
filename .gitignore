@@ -224,3 +224,5 @@ dmypy.json
 cython_debug/
 
 tmp/
+
+simple_project/state.json

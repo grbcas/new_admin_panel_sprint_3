@@ -1,9 +1,8 @@
 from backoff import backoff
 from elasticsearch import Elasticsearch, ConnectionError
 from elasticsearch.helpers import bulk
-from settings import logger, ROOT_DIR
+from settings import logger, state, ROOT_DIR
 import datetime
-from state import State, JsonFileStorage
 
 
 class ElasticsearchLoader:
@@ -38,18 +37,11 @@ class ElasticsearchLoader:
             with open(f"{ROOT_DIR}/es_schema.json", "r", encoding="utf8") as file:
                 schema = file.read()
                 es.indices.create(index=self.index_name, body=schema)
-                logger.info(" Create Index '%s' was created.", self.index_name)
 
-                current_time = datetime.datetime.now()
-                unix_epoch = datetime.datetime(1970, 1, 1)
-                time_delta_sec = (current_time - unix_epoch).total_seconds()
-                logger.info("New ES index: setting time_delta_sec from the unix_epoch start: %s", time_delta_sec)
+                index_created_ts = datetime.datetime.now()
+                logger.info("New ES %s index created_ts: %s", self.index_name, index_created_ts)
 
-                file_path = "/app/state.json"
-                storage = JsonFileStorage(file_path=file_path)
-                logger.warning("State storage created %s.", file_path)
-                state = State(storage=storage)
-                state.set_state('time_delta_sec', time_delta_sec)
+                state.set_state('index_created_ts', index_created_ts)
 
         except ConnectionError as ex:
             logger.error("Failed to create index '%s': %s", self.index_name, ex)

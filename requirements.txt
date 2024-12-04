@@ -9,4 +9,4 @@ elasticsearch==8.16.0
 elastic-transport==8.15.1
 pydantic==2.10.2
 pydantic_core==2.27.1
-
+pydantic-settings==2.6.1
