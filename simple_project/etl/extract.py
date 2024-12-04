@@ -3,29 +3,34 @@ import sys
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 import django
-from settings import logger
+from settings import logger, ROOT_DIR
 from backoff import backoff
 from models import FilmWorkModel, ActorDTO, DirectorDTO, WriterDTO
 
+# from django.conf import settings
+# settings.configure(DEBUG=True, ALLOWED_HOSTS=['localhost'])
 
-root_project_path = Path(__file__).parent.parent
-sys.path.append(str(root_project_path))
+
+# root_project_path = Path(__file__).parent.parent
+
+sys.path.append(ROOT_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+
+os.environ.get('DJANGO_SETTINGS_MODULE')
 django.setup()
 
 from django.conf import settings    # noqa: E402
 
 # Check if DEBUG is set correctly
-logger.info("Debug mode is %s", "ON" if settings.DEBUG else "OFF")
-
 
 from movies.models import (     # noqa: E402
     FilmWork,
     Person,
     Genre,
-    PersonFilmWork,
-    GenreFilmWork
-)
+    PersonFilmWork
+    )
+
+logger.info("Debug mode is %s", "ON" if settings.DEBUG else "OFF")
 
 
 class PostgresExtractor:
@@ -70,13 +75,13 @@ class PostgresExtractor:
 
         modified_data = modified_films + person_film_works + genre_film_works
 
-        logger.debug(len(modified_data), modified_data)
+        logger.debug('Total film_works %s, \n %s', len(modified_data), modified_data)
 
         results = []
         for film_work in modified_data:
-            actors = self.fetch_related_entities(film_work.id, 'actor')
-            directors = self.fetch_related_entities(film_work.id, 'director')
-            writers = self.fetch_related_entities(film_work.id, 'writer')
+            actors = self.fetch_related_entities(self, film_work.id, role='actor')
+            directors = self.fetch_related_entities(self, film_work.id, role='director')
+            writers = self.fetch_related_entities(self, film_work.id, role='writer')
 
             film_work_data = FilmWorkModel(
                 id=film_work.id,

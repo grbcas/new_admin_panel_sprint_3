@@ -2,16 +2,21 @@ import time
 import datetime
 from extract import PostgresExtractor
 from state import JsonFileStorage, State
-from settings import logger
+from settings import logger, ROOT_DIR
 from es_load import ElasticsearchLoader
 import settings
 
-file_path = 'state.json'
+
+file_path = "/app/state.json"
 storage = JsonFileStorage(file_path=file_path)
+logger.warning("State storage created %s.", file_path)
 state = State(storage=storage)
 
 
 def check_time_delta_sec():
+    if state.get_state('time_delta_sec'):
+        return state.get_state('time_delta_sec')
+
     state_time = state.get_state('last_processed_time')
     if not state_time:
         logger.warning("No last processed time found; using current time as fallback.")
@@ -31,20 +36,15 @@ def main():
     es_url = settings.ES_URL
     es = ElasticsearchLoader(es_url=es_url, index_name=es_index)
 
-    if es.create_index():
-        current_time = datetime.datetime.now()
-        unix_epoch = datetime.datetime(1970, 1, 1)
-        time_delta_sec = (current_time - unix_epoch).total_seconds()
-        logger.info("time_delta_sec from the unix_epoch start '%s'", time_delta_sec)
-
     time_delta_sec = check_time_delta_sec()
 
     while True:
+        logger.debug('time_delta_sec >>> %s', time_delta_sec)
         chunk_size = settings.CHUNK_SIZE
         pg_ex = PostgresExtractor(chunk_size=chunk_size, time_delta_sec=time_delta_sec)
         data_chunk = pg_ex.extract_from_bd()
 
-        logger.info("Film works to load '%s", len(data_chunk))
+        logger.info("Film works to load: %s", len(data_chunk))
 
         for film_work_data in data_chunk:
             logger.info(film_work_data)

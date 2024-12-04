@@ -7,15 +7,14 @@ from dotenv import load_dotenv
 from split_settings.tools import include
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
 include(
     'components/database.py',
-    'components/logging.py',
+    # 'components/logging.py',
 )
-
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -44,9 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 'debug_toolbar',
-    # 'django_extensions',
-    # 'corsheaders',
+    'debug_toolbar',
+    'django_extensions',
+    'corsheaders',
 
     'movies.apps.MoviesConfig',
 ]

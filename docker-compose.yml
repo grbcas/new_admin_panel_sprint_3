@@ -3,19 +3,23 @@ services:
   service:
     build:
       context: .
+    volumes:
+      - .:/app/
     container_name: app
-    command: ["sh", "-c", "until nc -zv theatre-db 5432; do sleep 60; done; /app/start.sh"]
+    command: ["sh", "-c", "until nc -zv pg_db 5432; do sleep 60; done; /app/start.sh"]
     expose:
       - "8000"
     env_file:
       - .env
     restart: always
     depends_on:
-      - theatre-db
+      - pg_db
 
-  theatre-db:
+  pg_db:
     image: postgres:16.0
-    container_name: postgresdb
+    container_name: pg_db
+    ports:
+      - 5432:5432
     env_file:
       - .env
     healthcheck:
@@ -27,14 +31,14 @@ services:
     volumes:
       - ./database_dump.sql:/docker-entrypoint-initdb.d/data_dump.sql
 
-  elastick:
+  elasticsearch:
     image: elasticsearch:8.6.2
-    container_name: elastick
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
     ports:
       - 9200:9200
     depends_on:
-      - theatre-db
+      - pg_db
     restart: always
