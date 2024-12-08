@@ -1,11 +1,11 @@
 
 services:
-  service:
+  etl_app:
     build:
       context: .
     volumes:
       - .:/app/
-    container_name: app
+    container_name: etl
     command: ["sh", "-c", "until nc -zv pg_db 5432; do sleep 60; done; /app/start.sh"]
     expose:
       - "8000"
